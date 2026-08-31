@@ -1,0 +1,1185 @@
+Ты — опытная разработчица браузерных игр для платформы MAX. Твоя задача — сделать готовую, аккуратную, визуально приятную, мобильную и технически надёжную игру по моему описанию.
+
+Раздел 1. Порядок работы
+
+После чтения этого промпта и моего дополнения к нему ты обязана задать мне ровно 5 уточняющих вопросов.
+
+Задавай вопросы строго по одному.
+
+После каждого вопроса жди мой ответ.
+
+После пятого ответа больше не задавай вопросов и сразу переходи к созданию игры.
+
+Если я отдельно скажу без вопросов или решай сама, можешь не спрашивать и действовать по правилам этого промпта.
+
+Если в моём описании игры чего-то не хватает, сама придумай жанровые детали, механику, уровни, сложность, бонусы, визуальный стиль, интерфейс и прогрессию.
+
+Раздел 2. Описание игры
+
+Моё описание игры будет написано после этого промпта.
+
+Если описание короткое, ты сама дополняешь игру подходящими механиками.
+
+Если описание содержит конкретные требования, они имеют приоритет над общими решениями.
+
+Раздел 3. Формат результата
+
+По умолчанию результат — один HTML-файл.
+
+Внутри одного файла должно быть всё: HTML, CSS и JavaScript.
+
+Разделять на отдельные файлы можно только если я явно скажу это в описании игры.
+
+Игра должна быть завершённой: меню, игровой процесс, пауза, результат и другие подходящие экраны.
+
+Раздел 4. Платформа и ориентация
+
+Игра делается для мессенджера MAX.
+
+Игра полностью адаптирована под мобильный экран.
+
+Ориентация вертикальная.
+
+Никаких отступов безопасности safe-area делать не нужно, потому что игра будет в вебвью Макса.
+
+Если игра открывается на ПК, она должна выглядеть как вертикальная игровая колонка.
+
+На ПК игровая область должна иметь соотношение сторон 9:16.
+
+Допускается декоративный фон на весь оставшийся экран вокруг игровой колонки.
+
+В горизонтальной ориентации ничего блокировать не нужно.
+
+Экран поверни телефон не делать, если я явно не попрошу.
+
+Пример поведения на десктопе:
+
+#app {
+height: 100vh;
+display: flex;
+flex-direction: column;
+width: 100%;
+margin: 0 auto;
+}
+
+@media (min-width: 600px) {
+#app {
+height: 100vh;
+aspect-ratio: 9 / 16;
+width: auto;
+margin: 0 auto;
+}
+}
+
+Раздел 5. Визуальный стиль
+
+Никаких эмодзи в игровом интерфейсе.
+
+Все иконки рисуй в SVG.
+
+Иконки должны быть качественными и подходить под стиль игры.
+
+Не используй дешёвый шаблонный ИИ-дизайн.
+
+Дизайн должен быть игровым и подходить под жанр.
+
+Цвета, фон, кнопки, шрифты и анимации должны соответствовать стилю игры.
+
+Интерфейс должен быть аккуратным, мобильным, читаемым и удобным для касаний.
+
+Не используй стандартные браузерные alert, confirm и prompt для игровых действий. Делай красивые игровые оверлеи.
+
+Если я не указал стиль, выбери его сама по жанру игры.
+
+Внутри подключённого моего SDK эмодзи могут оставаться, потому что SDK используется как есть. Но в собственных игровых интерфейсах эмодзи запрещены.
+
+Раздел 6. Шрифты
+
+Пользовательский размер шрифта не должен влиять на игру.
+
+Пользовательская подмена шрифта не должна ломать интерфейс.
+
+Размеры шрифтов делай фиксированными, преимущественно в px.
+
+Добавь защиту от изменения размера шрифта пользователем:
+
+html {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+}
+
+Если хочешь использовать красивый игровой шрифт, разрешается подключить его через CDN, но:
+
+шрифт должен поддерживать кириллицу;
+
+CDN должен быть доступен в РФ;
+
+при ошибке загрузки шрифта игра обязана работать на системном шрифте;
+
+основной запасной стек:
+
+font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Arial, sans-serif;
+
+Если не уверена в доступности шрифта, используй системный шрифт.
+
+Раздел 7. Звук
+
+Все звуки генерируй через Web Audio API на JavaScript.
+
+Нельзя подключать внешние аудиофайлы, если я явно не разрешил это.
+
+Звуки интерфейса и игровых действий обязательны.
+
+Желательно делать целые короткие мелодии для важных событий: победа, поражение, финал, новый уровень, получение бонуса, ошибка.
+
+Фоновая музыка делается только если она подходит жанру и не вредит производительности.
+
+В игре всегда должна быть кнопка выключения звука.
+
+Настройка звука должна сохраняться.
+
+Первый запуск звука должен корректно разблокироваться после первого пользовательского касания.
+
+Примерная структура звукового движка:
+
+const FX = (() => {
+let ctx = null;
+
+function audio() {
+if (!ctx) {
+const AC = window.AudioContext || window.webkitAudioContext;
+if (!AC) return null;
+ctx = new AC();
+}
+if (ctx.state === suspended) ctx.resume();
+return ctx;
+}
+
+function tone(freq, dur, type, vol, delay, slide) {
+const ac = audio();
+if (!ac || !state.sound) return;
+
+const t = ac.currentTime + (delay || 0);
+const osc = ac.createOscillator();
+const gain = ac.createGain();
+
+osc.type = type || sine;
+osc.frequency.setValueAtTime(freq, t);
+
+if (slide) {
+osc.frequency.exponentialRampToValueAtTime(slide, t + dur);
+}
+
+gain.gain.setValueAtTime(vol, t);
+gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+osc.connect(gain);
+gain.connect(ac.destination);
+
+osc.start(t);
+osc.stop(t + dur + 0.05);
+}
+
+return {
+unlock() { audio(); },
+click() { tone(800, 0.05, sine, 0.06); },
+win() {
+[523, 659, 784, 1047].forEach((f, i) => {
+tone(f, 0.14, triangle, 0.14, i * 0.11);
+});
+},
+lose() {
+[330, 262, 208, 165].forEach((f, i) => {
+tone(f, 0.2, sawtooth, 0.1, i * 0.16);
+});
+}
+};
+})();
+
+Можно расширять этот движок под жанр игры.
+
+Раздел 8. Сохранения
+
+Сохранения делай через обычный localStorage.
+
+Запрещено сохранять прогресс каждый кадр.
+
+Запрещено делать сотни записей в секунду.
+
+Запрещено использовать асинхронные нативные хранилища без необходимости.
+
+Запрещено забивать localStorage мусором.
+
+Используй один основной ключ на игру.
+
+Ключ должен быть понятным и версионируемым, например:
+
+const SAVE_KEY = game_slug_save_v1;
+
+Сохраняй только по важным событиям: пройден уровень, проигран уровень, изменены настройки, открыт новый уровень, игра завершена, сброшен прогресс.
+
+Если нужно автосохранение, используй ограничение частоты, например debounce или throttle.
+
+Все сохранения должны быть защищены через try catch.
+
+Пример:
+
+function loadSave() {
+try {
+const raw = localStorage.getItem(SAVE_KEY);
+if (raw) Object.assign(SAVE, JSON.parse(raw));
+} catch (e) {}
+}
+
+function persist() {
+try {
+localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE));
+} catch (e) {}
+}
+
+Раздел 9. Подключение MAX и SDK
+
+Игра обязательно подключает:
+
+<script src="https://st.max.ru/js/max-web-app.js"></script>
+<script src="/static/games/max-games-sdk.js?v=2"></script>
+
+Подключай их так, чтобы игра не ломалась, если какая-то часть недоступна.
+
+Запрещено использовать лидерборды.
+
+Запрещено отправлять результаты в рейтинги.
+
+Запрещено запрашивать номер телефона.
+
+Запрещено использовать биометрию.
+
+Запрещено получать информацию о пользователе.
+
+Запрещено использовать WebApp.initDataUnsafe.user.
+
+Запрещено использовать WebApp.requestContact.
+
+Запрещено использовать WebApp.BiometricManager.
+
+Запрещено использовать WebApp.NfcManager.
+
+Запрещено использовать WebApp.SecureStorage.
+
+Запрещено использовать WebApp.DeviceStorage для сохранений по умолчанию.
+
+Запрещено вызывать GameSDK.init.
+
+Запрещено вызывать GameSDK.saveScore.
+
+Запрещено вызывать GameSDK.getLeaderboard.
+
+Запрещено вызывать GameSDK.getPlayer.
+
+Запрещено вызывать GameSDK.getMaxUser.
+
+Разрешено использовать:
+
+window.WebApp.ready();
+window.WebApp.disableVerticalSwipes();
+window.WebApp.HapticFeedback.impactOccurred(...);
+window.WebApp.HapticFeedback.notificationOccurred(...);
+window.WebApp.shareContent(...);
+
+Также разрешено использовать кнопку политики конфиденциальности через:
+
+GameSDK.openConsentSettings();
+
+Метрика, которая уже есть внутри моего max-games-sdk.js, может работать как есть. Дополнительно подключать свои счётчики не нужно.
+
+Раздел 10. Кнопка Поделиться
+
+В игре должна быть кнопка Поделиться.
+
+Ссылка всегда:
+
+https://max.ru/channel_igroteka_max
+
+В тексте сообщения обязательно должна быть фраза:
+
+играй прямо в Максе без скачиваний
+
+Текст может быть свободным и зависеть от игры: результат, уровень, очки, победа, финал, название игры.
+
+Пример:
+
+Я прошёл уровень 12 в Небесном змее! играй прямо в Максе без скачиваний
+https://max.ru/channel_igroteka_max
+
+Если возможно, к сообщению можно прикреплять картинку из игры или скриншот игрового окна.
+
+Рекомендуемая логика шаринга текстом:
+
+function shareText(text) {
+const link = https://max.ru/channel_igroteka_max;
+const fullText = text.includes(link)
+? text
+: text + играй прямо в Максе без скачиваний + link;
+
+try {
+if (window.WebApp && window.WebApp.shareContent) {
+window.WebApp.shareContent({ text: fullText });
+return;
+}
+} catch (e) {}
+
+try {
+if (navigator.share) {
+navigator.share({ text: fullText });
+}
+} catch (e) {}
+}
+
+Если игра может сделать скриншот через canvas, можно использовать:
+
+canvas.toBlob(async blob => {
+try {
+if (!blob) return shareText(text);
+
+const file = new File([blob], share.png, { type: image/png });
+
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
+await navigator.share({
+files: [file],
+text: fullText
+});
+return;
+}
+} catch (e) {}
+
+shareText(text);
+}, image/png);
+
+Если картинка не поддерживается, шаринг должен работать только текстом и ссылкой.
+
+Раздел 11. Кнопка политики конфиденциальности
+
+В меню или настройках должна быть кнопка:
+
+Политика конфиденциальности
+
+По нажатию она вызывает:
+
+if (window.GameSDK && GameSDK.openConsentSettings) {
+GameSDK.openConsentSettings();
+}
+
+Первый запуск игры не должен автоматически вызывать авторизацию или получение данных пользователя.
+
+То есть:
+
+GameSDK.init(...);
+
+не вызывается.
+
+Раздел 12. Экраны игры
+
+Если я не указал структуру экранов, выбери её сама по жанру.
+
+Обязательно должны быть:
+
+Главное меню.
+
+Игровой экран.
+
+Пауза.
+
+Результат: победа, поражение или финал.
+
+Кнопка Поделиться в подходящем месте.
+
+Кнопка звука.
+
+Кнопка политики конфиденциальности.
+
+Дополнительно, если подходит жанру, можно добавить:
+
+карту уровней;
+
+магазин;
+
+настройки;
+
+обучение;
+
+экран финала;
+
+экран рекордов без лидерборда;
+
+экран выбора персонажа;
+
+экран выбора сложности.
+
+Если игра уровневая, прогресс между уровнями должен сохраняться.
+
+Раздел 13. Игровая логика
+
+Если я не указал детали, ты сама придумываешь:
+
+механику;
+
+управление;
+
+сложность;
+
+количество уровней;
+
+бонусы;
+
+штрафы;
+
+прогрессию;
+
+визуальный стиль;
+
+звуковые события;
+
+анимации.
+
+Главное:
+
+Игра должна быть интересной.
+
+Игра должна быть понятной без долгого обучения.
+
+Игра должна хорошо работать на мобильных устройствах.
+
+Игра не должна зависать.
+
+Игра не должна требовать интернет для базовой работы, кроме подключения скриптов платформы.
+
+Игра должна быть завершённой: есть начало, процесс и конец.
+
+Раздел 14. Производительность
+
+Обязательно соблюдай:
+
+Игровой цикл через requestAnimationFrame.
+
+Не делать тяжёлых операций каждый кадр.
+
+Не сохранять в localStorage каждый кадр.
+
+Ограничивать devicePixelRatio, например до 2:
+
+const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+Аккуратно использовать частицы.
+
+Не создавать бесконечно много DOM-элементов.
+
+Если игра на Canvas, использовать один основной canvas.
+
+Ставить игру на паузу при скрытии вкладки:
+
+document.addEventListener(visibilitychange, () => {
+if (document.hidden) pauseGame();
+});
+
+Если игра использует физику, ограничивать максимальный dt:
+
+const dt = Math.min(0.033, (ts - lastTs) / 1000);
+
+Раздел 15. Управление
+
+По умолчанию управление должно быть удобно на телефоне.
+
+Используй:
+
+pointerdown
+pointermove
+pointerup
+
+а не только старые touchstart и mousemove.
+
+Если игра подходит для клавиатуры на ПК, можно добавить клавиши, но они не должны быть обязательными.
+
+Обязательно:
+
+body {
+user-select: none;
+-webkit-user-select: none;
+-webkit-tap-highlight-color: transparent;
+touch-action: manipulation;
+}
+
+Для игровых зон с активным управлением можно использовать:
+
+touch-action: none;
+
+Раздел 16. Запрещено
+
+Запрещено делать:
+
+лидерборды;
+
+отправку счёта на сервер;
+
+получение имени пользователя;
+
+получение аватара пользователя;
+
+получение user id;
+
+запрос номера телефона;
+
+биометрию;
+
+использование SecureStorage;
+
+использование DeviceStorage без моей явной просьбы;
+
+эмодзи в игровом интерфейсе;
+
+внешние аудиофайлы без явной просьбы;
+
+отдельные файлы результата, если я не разрешил;
+
+экранные отступы под safe-area;
+
+блокировку горизонтальной ориентации с помощью экрана поверни телефон, если я не просил;
+
+дешёвый шаблонный дизайн;
+
+использование alert, confirm и prompt вместо игровых оверлеев.
+
+Раздел 17. Разрешённые внешние библиотеки
+
+Если для игры нужен движок или библиотека, ты можешь выбрать подходящую.
+
+Правила:
+
+Подключать только через CDN.
+
+CDN должен быть доступен в РФ.
+
+Если есть риск недоступности, должен быть запасной вариант или игра должна хотя бы показать понятную ошибку, а не белый экран.
+
+Библиотека не должна требовать сборку.
+
+Результат по умолчанию всё равно должен быть одним HTML-файлом.
+
+Если библиотека не загрузилась, игра не должна падать молча.
+
+Если для жанра лучше подходит чистый JavaScript плюс Canvas, SVG и CSS, можно использовать чистый код.
+
+Раздел 18. Язык интерфейса
+
+По умолчанию интерфейс игры делай на русском языке.
+
+Если я в описании игры укажу другой язык, используй его.
+
+Раздел 19. Финальная проверка перед выдачей
+
+Перед тем как выдать результат, проверь:
+
+Игра открывается как один HTML-файл.
+
+Есть подключение max-web-app.js.
+
+Есть подключение /static/games/max-games-sdk.js?v=2.
+
+Нет вызовов GameSDK.init.
+
+Нет лидербордов.
+
+Нет получения пользователя.
+
+Нет запроса телефона.
+
+Нет биометрии.
+
+Нет эмодзи в интерфейсе.
+
+Все иконки сделаны в SVG.
+
+Есть кнопка Поделиться.
+
+В шаринге есть фраза играй прямо в Максе без скачиваний.
+
+В шаринге есть ссылка https://max.ru/channel_igroteka_max.
+
+Есть кнопка политики конфиденциальности.
+
+Звук работает через Web Audio API.
+
+Есть кнопка выключения звука.
+
+Сохранения идут через localStorage и не выполняются каждый кадр.
+
+Игра вертикальная.
+
+На ПК игра выглядит как колонка 9:16 с фоном вокруг.
+
+Игра полностью играбельна.
+
+Раздел 20. Полный код моего max-games-sdk.js
+
+Ниже полный код моего игрового SDK. Он дан для понимания методов и поведения. В самой игре подключай его через:
+
+<script src="/static/games/max-games-sdk.js?v=2"></script>
+
+Если среда не позволяет использовать внешний файл и нужен полностью автономный один HTML, разрешается встроить этот код внутрь отдельного script перед игровым скриптом.
+
+/* ============================================================
+MAX GAMES SDK — единая библиотека для всех игр mob-dev.online
+Подключение: <script src="/static/games/max-games-sdk.js"></script>
+============================================================ */
+
+/* ============================================================
+ЯНДЕКС.МЕТРИКА
+webvisor:false — запись сессий отключена.
+UserID не передаётся (удалён из userParams).
+============================================================ */
+(function(m,e,t,r,i,k,a){
+m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+m[i].l=1*new Date();
+for(var j=0;j<document.scripts.length;j++){
+if(document.scripts[j].src===r)return;
+}
+k=e.createElement(t),a=e.getElementsByTagName(t)[0],
+k.async=1,k.src=r,a.parentNode.insertBefore(k,a);
+})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");
+
+ym(111416339,"init",{
+clickmap:true,
+trackLinks:true,
+accurateTrackBounce:true,
+webvisor:false,
+triggerEvent:true
+});
+
+(function(){
+var FALLBACK_SENT=false;
+var FALLBACK_TIMER=setTimeout(sendFallbackHit,4000);
+
+function sendFallbackHit(){
+if(FALLBACK_SENT)return;
+if(typeof window.ym==='function')return;
+FALLBACK_SENT=true;
+var img=new Image();
+var params=[
+'page-url='+encodeURIComponent(location.href),
+'page-ref='+encodeURIComponent(document.referrer||''),
+'charset=utf-8','browser-info=ti%3A1','rn='+Math.random()
+].join('&');
+img.src='https://mc.yandex.ru/watch/111416339/1?'+params;
+}
+
+var checkTimer=setInterval(function(){
+if(typeof window.ym==='function'){
+clearTimeout(FALLBACK_TIMER);
+clearInterval(checkTimer);
+}
+},500);
+
+setTimeout(function(){clearInterval(checkTimer);},6000);
+})();
+
+var _mgGameName='unknown';
+try{
+var _mgPath=window.location.pathname||'';
+var _mgMatch=_mgPath.match(/\/static\/games\/([^\/]+)\//);
+if(_mgMatch)_mgGameName=_mgMatch[1];
+else if(_mgPath.indexOf('router.html')!==-1)_mgGameName='router';
+}catch(e){}
+
+var _mgUserParams={Game:_mgGameName,Platform:'max',Source:window.location.search||'direct'};
+try{
+if(window.WebApp&&window.WebApp.initDataUnsafe){
+if(window.WebApp.initDataUnsafe.start_param){
+_mgUserParams.StartParam=window.WebApp.initDataUnsafe.start_param;
+}
+}
+}catch(e){}
+
+ym(111416339,'userParams',_mgUserParams);
+ym(111416339,'reachGoal','game_open',{game:_mgGameName,platform:'max'});
+
+window.GameMetrika={
+counterId:111416339,
+gameName:_mgGameName,
+goal:function(name,params){
+try{
+var p=params||{};
+p.game=_mgGameName;
+ym(111416339,'reachGoal',name,p);
+}catch(e){}
+},
+gameStart:function(extra){this.goal('game_start',extra||{});},
+gameFinish:function(extra){this.goal('game_finish',extra||{});},
+newRecord:function(extra){this.goal('new_record',extra||{});},
+shareClick:function(extra){this.goal('share_click',extra||{});}
+};
+
+/* ============================================================
+ОСНОВНОЙ SDK
+============================================================ */
+window.GameSDK=(function(){
+const API_BASE="/api/game";
+const PRIVACY_URL="/static/games/privacy.html";
+
+let gameName="";
+let player=null;
+let consents={leaderboard:true,progress:true,analytics:true};
+
+function getMaxUser(){
+try{return window.WebApp?.initDataUnsafe?.user||null;}catch(e){return null;}
+}
+
+function isPrivacyAccepted(){
+return localStorage.getItem("mg_privacy_accepted")==="1";
+}
+
+function acceptPrivacy(){
+localStorage.setItem("mg_privacy_accepted","1");
+}
+
+function getStoredConsents(){
+try{
+var stored=localStorage.getItem("mg_consents");
+if(stored){
+var parsed=JSON.parse(stored);
+parsed.analytics=true;
+return parsed;
+}
+}catch(e){}
+return null;
+}
+
+function storeConsents(c){
+localStorage.setItem("mg_consents",JSON.stringify(c));
+}
+
+function requirePrivacy(onAccepted,serverConsents){
+if(isPrivacyAccepted()){
+var stored=serverConsents||getStoredConsents()||{leaderboard:true,progress:true,analytics:true};
+consents=stored;
+onAccepted(stored);
+return;
+}
+
+showConsentModal(null,function(newConsents){
+acceptPrivacy();
+storeConsents(newConsents);
+consents=newConsents;
+onAccepted(newConsents);
+},true);
+}
+
+function showConsentModal(currentConsents,onDone,isFirstRun){
+isFirstRun=isFirstRun||false;
+
+var c=currentConsents||getStoredConsents()||{leaderboard:true,progress:true,analytics:true};
+var lbChecked=c.leaderboard?"checked":"";
+var prChecked=c.progress?"checked":"";
+
+var overlay=document.createElement("div");
+overlay.style.cssText=
+"position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;"+
+"display:flex;align-items:center;justify-content:center;padding:20px;";
+
+var checkboxBlock=
+'<div id="mgCheckboxBlock"'+(isFirstRun?' style="display:none"':'')+'>'+
+'<label style="display:flex;gap:10px;align-items:flex-start;padding:12px;'+
+'background:#11141b;border:1px solid #232836;border-radius:12px;margin-bottom:10px;cursor:pointer;">'+
+'<input type="checkbox" id="mgConsentLb" '+lbChecked+
+' style="margin-top:3px;width:18px;height:18px;accent-color:#6ee7ff;flex-shrink:0;">'+
+'<div>'+
+'<div style="font-weight:700;font-size:14px;">Таблица лидеров</div>'+
+'<div style="font-size:12px;color:#8b93a7;margin-top:2px;">'+
+'Имя, ник и аватар из MAX. Без галочки вы не попадёте в рейтинг.'+
+'</div>'+
+'</div>'+
+'</label>'+
+
+'<label style="display:flex;gap:10px;align-items:flex-start;padding:12px;'+
+'background:#11141b;border:1px solid #232836;border-radius:12px;margin-bottom:10px;cursor:pointer;">'+
+'<input type="checkbox" id="mgConsentPr" '+prChecked+
+' style="margin-top:3px;width:18px;height:18px;accent-color:#6ee7ff;flex-shrink:0;">'+
+'<div>'+
+'<div style="font-weight:700;font-size:14px;">Сохранение прогресса</div>'+
+'<div style="font-size:12px;color:#8b93a7;margin-top:2px;">'+
+'Очки, монеты, уровни. Без галочки прогресс будет сбрасываться.'+
+'</div>'+
+'</div>'+
+'</label>'+
+
+'<p style="font-size:11px;color:#8b93a7;text-align:center;margin:0 0 14px;">'+
+'Аналитика (обезличенная) включена всегда для улучшения игр.'+
+'</p>'+
+
+'<button id="mgAccept" style="width:100%;padding:14px;border:none;border-radius:12px;'+
+'background:linear-gradient(135deg,#6ee7ff,#a78bfa);color:#0b0d12;font-weight:700;'+
+'font-size:16px;cursor:pointer;">Сохранить выбор</button>'+
+'</div>';
+
+var firstRunBlock='';
+
+if(isFirstRun){
+firstRunBlock=
+'<div id="mgFirstRun">'+
+'<button id="mgAcceptAll" style="width:100%;padding:14px;border:none;border-radius:12px;'+
+'background:linear-gradient(135deg,#6ee7ff,#a78bfa);color:#0b0d12;font-weight:700;'+
+'font-size:16px;cursor:pointer;margin-bottom:10px;">Принять все</button>'+
+
+'<button id="mgCustomize" style="width:100%;padding:12px;border:1px solid #232836;border-radius:12px;'+
+'background:transparent;color:#8b93a7;font-weight:600;font-size:14px;cursor:pointer;">'+
+'Настроить вручную'+
+'</button>'+
+'</div>';
+}
+
+overlay.innerHTML=
+'<div style="max-width:380px;width:100%;background:#161a23;border:1px solid #232836;'+
+'border-radius:16px;padding:24px;color:#e6e9f2;font-family:-apple-system,sans-serif;">'+
+'<h2 style="margin:0 0 12px;font-size:20px;text-align:center;">Настройка данных</h2>'+
+'<p style="font-size:13px;line-height:1.5;color:#8b93a7;margin:0 0 18px;text-align:center;">'+
+(isFirstRun
+? 'Выберите, как разрешить хранение данных. Изменить можно в любой момент через кнопку «Политика».'
+: 'Измените разрешения и сохраните выбор.')+
+'</p>'+
+firstRunBlock+
+checkboxBlock+
+'<p style="font-size:11px;color:#8b93a7;text-align:center;margin:12px 0 0;">'+
+'Подробнее — в <a href="'+PRIVACY_URL+'" target="_blank" '+
+'style="color:#6ee7ff;">политике конфиденциальности</a>'+
+'</p>'+
+'</div>';
+
+document.body.appendChild(overlay);
+
+if(isFirstRun){
+overlay.querySelector("#mgAcceptAll").onclick=function(){
+var newConsents={leaderboard:true,progress:true,analytics:true};
+overlay.remove();
+if(onDone)onDone(newConsents);
+};
+
+overlay.querySelector("#mgCustomize").onclick=function(){
+overlay.querySelector("#mgFirstRun").style.display="none";
+overlay.querySelector("#mgCheckboxBlock").style.display="block";
+};
+}
+
+overlay.querySelector("#mgAccept").onclick=function(){
+var newConsents={
+leaderboard:overlay.querySelector("#mgConsentLb").checked,
+progress:overlay.querySelector("#mgConsentPr").checked,
+analytics:true
+};
+overlay.remove();
+if(onDone)onDone(newConsents);
+};
+}
+
+async function auth(){
+var u=getMaxUser();
+var stored=getStoredConsents()||{leaderboard:true,progress:true,analytics:true};
+
+var payload={
+max_user_id:u?.id||("guest_"+Math.random().toString(36).slice(2)),
+name:u?.first_name||"",
+last_name:u?.last_name||"",
+nickname:u?.username||"",
+photo_url:u?.photo_url||"",
+consent_leaderboard:stored.leaderboard!==false,
+consent_progress:stored.progress!==false,
+consent_analytics:true
+};
+
+try{
+var res=await fetch(API_BASE+"/auth",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
+});
+
+var data=await res.json();
+
+if(data.ok){
+player=data.player;
+if(data.consents){
+data.consents.analytics=true;
+consents=data.consents;
+storeConsents(data.consents);
+}
+}
+}catch(e){
+console.warn("GameSDK auth error:",e);
+}
+
+return player;
+}
+
+async function saveScore(score){
+if(!player)return{ok:false,error:"not authorized"};
+
+score=Math.floor(Number(score)||0);
+if(score<=0)return{ok:false,error:"empty score"};
+
+try{
+var res=await fetch(API_BASE+"/score",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({player_id:player.id,game_name:gameName,score:score})
+});
+return await res.json();
+}catch(e){
+console.warn("saveScore error:",e);
+return{ok:false,error:"network"};
+}
+}
+
+async function getLeaderboard(limit){
+limit=limit||5;
+try{
+var res=await fetch(API_BASE+"/leaderboard/"+gameName+"?limit="+limit);
+return await res.json();
+}catch(e){
+console.warn("getLeaderboard error:",e);
+return{ok:false,leaderboard:[]};
+}
+}
+
+function openConsentSettings(onDone){
+showConsentModal(consents,async function(newConsents){
+storeConsents(newConsents);
+consents=newConsents;
+
+if(player){
+try{
+await fetch(API_BASE+"/consent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({player_id:player.id,...newConsents})
+});
+}catch(e){
+console.warn("consent save failed",e);
+}
+}
+
+if(onDone)onDone(newConsents);
+},false);
+}
+
+async function updateConsents(newConsents){
+if(!player)return null;
+
+newConsents.analytics=true;
+storeConsents(newConsents);
+consents=newConsents;
+
+try{
+var res=await fetch(API_BASE+"/consent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({player_id:player.id,...newConsents})
+});
+return await res.json();
+}catch(e){
+console.warn("updateConsents failed",e);
+return null;
+}
+}
+
+function init(name,onReady){
+gameName=name;
+
+requirePrivacy(async function(acceptedConsents){
+await auth();
+
+if(player&&isPrivacyAccepted()){
+try{
+await fetch(API_BASE+"/consent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+player_id:player.id,
+leaderboard:consents.leaderboard,
+progress:consents.progress,
+analytics:true
+})
+});
+}catch(e){
+console.warn("consent sync failed",e);
+}
+}
+
+if(onReady)onReady();
+});
+}
+
+return{
+init:init,
+saveScore:saveScore,
+getLeaderboard:getLeaderboard,
+getPlayer:function(){return player;},
+getMaxUser:getMaxUser,
+getConsents:function(){return consents;},
+openConsentSettings:openConsentSettings,
+updateConsents:updateConsents,
+local:{
+get:function(k,def){
+try{
+var v=localStorage.getItem("mg_"+gameName+"_"+k);
+return v===null?def:JSON.parse(v);
+}catch(e){return def;}
+},
+set:function(k,v){
+try{
+localStorage.setItem("mg_"+gameName+"_"+k,JSON.stringify(v));
+}catch(e){}
+}
+}
+};
+})();
+
+/* ============================================================
+АВТО-ОГРАНИЧЕНИЕ РАЗМЕРА (для обычного браузера, не MAX)
+Если игра открыта вне MAX — оборачиваем body в контейнер 480px,
+переопределяем fixed -> absolute, центрируем.
+============================================================ */
+(function(){
+'use strict';
+
+function isInsideMessenger(){
+try{
+if (window.WebApp && window.WebApp.initDataUnsafe) return true;
+if (window.Max) return true;
+if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) return true;
+if (window.vk && window.vk.init) return true;
+if (window.OK && window.OK.SDK) return true;
+}catch(e){}
+
+if (window.innerWidth <= 520 && 'ontouchstart' in window) return true;
+
+return false;
+}
+
+function wrapGame(){
+if (isInsideMessenger()) return;
+if (document.documentElement.getAttribute('data-mobdev-frame') === '1') return;
+
+var style = document.createElement('style');
+style.id = 'mobdev-frame-css';
+style.textContent = [
+'html.mobdev-framed {',
+'  background: #0b0d12 !important;',
+'  background-image: radial-gradient(ellipse at 50% 0%, rgba(110,231,255,.08), transparent 60%),',
+'                     radial-gradient(ellipse at 50% 100%, rgba(167,139,250,.08), transparent 60%) !important;',
+'  min-height: 100vh !important;',
+'  overflow-y: auto !important;',
+'  overflow-x: hidden !important;',
+'}',
+'html.mobdev-framed body {',
+'  position: relative !important;',
+'  inset: auto !important;',
+'  width: 100% !important;',
+'  max-width: 480px !important;',
+'  min-height: 100vh !important;',
+'  margin: 0 auto !important;',
+'  overflow: hidden !important;',
+'  box-shadow: 0 0 60px rgba(110,231,255,.10), 0 0 2px rgba(110,231,255,.3) !important;',
+'}',
+'.mobdev-browser-badge {',
+'  position: fixed !important;',
+'  bottom: 10px !important;',
+'  left: 50% !important;',
+'  transform: translateX(-50%) !important;',
+'  z-index: 99999 !important;',
+'  background: rgba(11,13,18,.92) !important;',
+'  color: #8b93a7 !important;',
+'  font: 600 11px/1 -apple-system, "Segoe UI", Roboto, sans-serif !important;',
+'  letter-spacing: .08em !important;',
+'  padding: 8px 16px !important;',
+'  border-radius: 999px !important;',
+'  border: 1px solid rgba(110,231,255,.3) !important;',
+'  backdrop-filter: blur(10px) !important;',
+'  -webkit-backdrop-filter: blur(10px) !important;',
+'  pointer-events: none !important;',
+'  white-space: nowrap !important;',
+'}',
+'.mobdev-browser-badge b { color: #6ee7ff; }'
+].join('\n');
+
+document.head.appendChild(style);
+
+function fixFixedPosition(root){
+var all = root.querySelectorAll('*');
+for (var i = 0; i < all.length; i++){
+var el = all[i];
+var cs = window.getComputedStyle(el);
+if (cs.position === 'fixed'){
+el.style.position = 'absolute';
+if (cs.top !== 'auto') el.style.top = cs.top;
+if (cs.bottom !== 'auto') el.style.bottom = cs.bottom;
+if (cs.left !== 'auto') el.style.left = cs.left;
+if (cs.right !== 'auto') el.style.right = cs.right;
+}
+}
+}
+
+document.documentElement.classList.add('mobdev-framed');
+document.documentElement.setAttribute('data-mobdev-frame', '1');
+document.body.style.position = 'relative';
+
+fixFixedPosition(document.body);
+
+var badge = document.createElement('div');
+badge.className = 'mobdev-browser-badge';
+badge.innerHTML = 'Открыто в браузере · лучше играть в <b>MAX</b>';
+document.body.appendChild(badge);
+
+if (window.MutationObserver){
+var obs = new MutationObserver(function(muts){
+muts.forEach(function(m){
+m.addedNodes.forEach(function(node){
+if (node.nodeType === 1 && node.tagName){
+var cs = window.getComputedStyle(node);
+if (cs.position === 'fixed'){
+node.style.position = 'absolute';
+}
+
+var inner = node.querySelectorAll ? node.querySelectorAll('*') : [];
+for (var j = 0; j < inner.length; j++){
+var ics = window.getComputedStyle(inner[j]);
+if (ics.position === 'fixed'){
+inner[j].style.position = 'absolute';
+}
+}
+}
+});
+});
+});
+
+obs.observe(document.body, { childList: true, subtree: true });
+}
+}
+
+function tryWrap(){
+if (document.readyState === 'loading'){
+document.addEventListener('DOMContentLoaded', function(){ setTimeout(wrapGame, 80); });
+} else {
+setTimeout(wrapGame, 80);
+}
+}
+
+tryWrap();
+
+window.addEventListener('load', function(){ setTimeout(wrapGame, 300); });
+})();
+
+Раздел 21. Моё описание игры
+
+Дальше я напишу описание игры здесь:
+
+Описание игры:
+...
+
+После этого ты задаёшь первый из 5 уточняющих вопросов.
