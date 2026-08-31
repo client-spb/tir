@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Космический Защитник</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- UI Elements -->
+        <div id="ui-layer">
+            <div id="score-board">Счет: <span id="score">0</span></div>
+            <div id="health-bar">
+                <div id="health-fill"></div>
+            </div>
+            <div id="start-screen" class="screen active">
+                <h1>КОСМИЧЕСКИЙ ЗАЩИТНИК</h1>
+                <p>Води пальцем для управления</p>
+                <p>Стрельба автоматическая</p>
+                <button id="start-btn">НАЧАТЬ ИГРУ</button>
+            </div>
+            <div id="game-over-screen" class="screen">
+                <h1>ИГРА ОКОНЧЕНА</h1>
+                <p>Финальный счет: <span id="final-score">0</span></p>
+                <button id="restart-btn">ИГРАТЬ СНОВА</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SVG Assets (Hidden) -->
+    <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <!-- Player Ship -->
+            <symbol id="svg-player" viewBox="0 0 64 64">
+                <path d="M32 2 L48 54 L32 46 L16 54 Z" fill="#00d2ff" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="32" cy="30" r="4" fill="#ffffff"/>
+                <path d="M16 54 L10 62 L20 58 Z" fill="#ff6600" opacity="0.8"/>
+                <path d="M48 54 L54 62 L44 58 Z" fill="#ff6600" opacity="0.8"/>
+            </symbol>
+
+            <!-- Alien Enemy 1 -->
+            <symbol id="svg-alien1" viewBox="0 0 64 64">
+                <ellipse cx="32" cy="32" rx="24" ry="18" fill="#7cfc00" stroke="#32cd32" stroke-width="2"/>
+                <circle cx="24" cy="28" r="6" fill="#000000"/>
+                <circle cx="40" cy="28" r="6" fill="#000000"/>
+                <circle cx="24" cy="28" r="2" fill="#ffffff"/>
+                <circle cx="40" cy="28" r="2" fill="#ffffff"/>
+                <path d="M20 45 Q32 55 44 45" stroke="#006400" stroke-width="3" fill="none"/>
+                <path d="M8 32 L2 20 M56 32 L62 20 M12 50 L6 60 M52 50 L58 60" stroke="#7cfc00" stroke-width="4"/>
+            </symbol>
+
+            <!-- Alien Enemy 2 (Squid-like) -->
+            <symbol id="svg-alien2" viewBox="0 0 64 64">
+                <path d="M16 10 L48 10 L54 24 L48 40 L40 34 L32 44 L24 34 L16 40 L10 24 Z" fill="#da70d6" stroke="#9370db" stroke-width="2"/>
+                <circle cx="26" cy="24" r="4" fill="#ffffff"/>
+                <circle cx="38" cy="24" r="4" fill="#ffffff"/>
+                <circle cx="26" cy="24" r="2" fill="#000000"/>
+                <circle cx="38" cy="24" r="2" fill="#000000"/>
+                <path d="M20 44 L18 54 M28 48 L28 58 M36 48 L36 58 M44 44 L46 54" stroke="#da70d6" stroke-width="3"/>
+            </symbol>
+
+            <!-- Asteroid -->
+            <symbol id="svg-asteroid" viewBox="0 0 64 64">
+                <polygon points="32,4 48,12 56,28 52,48 36,60 16,56 8,36 12,16" fill="#8b4513" stroke="#a0522d" stroke-width="2"/>
+                <circle cx="24" cy="24" r="6" fill="#654321" opacity="0.6"/>
+                <circle cx="42" cy="38" r="8" fill="#654321" opacity="0.6"/>
+                <circle cx="30" cy="48" r="4" fill="#654321" opacity="0.6"/>
+            </symbol>
+
+            <!-- Enemy Ship -->
+            <symbol id="svg-enemy-ship" viewBox="0 0 64 64">
+                <path d="M32 62 L48 10 L32 18 L16 10 Z" fill="#dc143c" stroke="#8b0000" stroke-width="2"/>
+                <circle cx="32" cy="30" r="6" fill="#ff4500"/>
+                <path d="M16 10 L8 4 L12 14 Z" fill="#ff4500" opacity="0.7"/>
+                <path d="M48 10 L56 4 L52 14 Z" fill="#ff4500" opacity="0.7"/>
+                <rect x="28" y="40" width="8" height="12" fill="#ff6347"/>
+            </symbol>
+
+            <!-- Bonus Shield -->
+            <symbol id="svg-bonus-shield" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#00bfff" stroke-width="3" stroke-dasharray="5,5"/>
+                <circle cx="32" cy="32" r="20" fill="#87ceeb" opacity="0.3"/>
+                <path d="M32 16 L36 28 L48 28 L38 36 L42 48 L32 42 L22 48 L26 36 L16 28 L28 28 Z" fill="#ffffff"/>
+            </symbol>
+
+            <!-- Bonus Powerup -->
+            <symbol id="svg-bonus-powerup" viewBox="0 0 64 64">
+                <polygon points="32,4 40,24 60,24 44,38 50,58 32,46 14,58 20,38 4,24 24,24" fill="#ffd700" stroke="#ffa500" stroke-width="2"/>
+                <text x="32" y="42" font-size="24" text-anchor="middle" fill="#8b4513" font-weight="bold">P</text>
+            </symbol>
+
+            <!-- Bonus Health -->
+            <symbol id="svg-bonus-health" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="26" fill="#ff69b4" stroke="#db7093" stroke-width="2"/>
+                <rect x="26" y="18" width="12" height="28" fill="#ffffff"/>
+                <rect x="18" y="26" width="28" height="12" fill="#ffffff"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
